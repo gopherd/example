@@ -1,32 +1,32 @@
-# Gopherd/core 框架全面使用指南
+# Comprehensive Guide to Using the Gopherd/core Framework
 
-## 1. 介绍
+## 1. Introduction
 
-Gopherd/core 是一个现代化的 Go 语言框架，专为构建可扩展、模块化的后端服务而设计。它充分利用了 Go 的泛型特性，提供了一种类型安全、灵活且高效的方式来开发应用程序。
+[Gopherd/core](https://github.com/gopherd/core) is a modern Go framework designed for building scalable, modular backend services. It leverages Go's generics to provide a type-safe, flexible, and efficient way to develop applications.
 
-本指南将通过一个逐步构建的 Web 服务器项目来展示 Gopherd/core 的各个特性和使用方法。我们的示例项目将包含 HTTP 服务器、事件系统、身份验证（auth）和用户管理（users）等功能。
+This guide will demonstrate the features and usage of Gopherd/core through a step-by-step web server project. Our example project will include functionalities such as an HTTP server, event system, authentication (auth), and user management.
 
-### 1.1 主要特性
+### 1.1 Key Features
 
-- 基于泛型的组件系统
-- 灵活的配置管理
-- 生命周期管理
-- 依赖注入
-- 事件系统
+- Generic-based component system
+- Flexible configuration management
+- Lifecycle management
+- Dependency injection
+- Event system
 
-## 2. 快速开始
+## 2. Quick Start
 
-### 2.1 安装
+### 2.1 Installation
 
-确保你的 Go 版本至少是 1.18。然后，在你的项目中安装 Gopherd/core：
+Ensure you have Go version 1.21 or later. Then, install Gopherd/core in your project:
 
 ```bash
 go get github.com/gopherd/core
 ```
 
-### 2.2 项目结构
+### 2.2 Project Structure
 
-我们的示例项目结构如下：
+Our example project structure is as follows:
 
 ```
 example/
@@ -51,9 +51,9 @@ example/
 └── main.go
 ```
 
-### 2.3 创建主程序
+### 2.3 Creating the Main Program
 
-让我们从创建一个最小的主程序开始。在 `main.go` 中：
+Let's start by creating a minimal main program. In `main.go`:
 
 ```go
 package main
@@ -67,11 +67,11 @@ func main() {
 }
 ```
 
-这个简单的主程序调用 `service.Run()` 来启动应用程序。现在，它还不会做任何事情，因为我们还没有注册任何组件。
+This simple main program calls `service.Run()` to start the application. At this point, it won't do anything because we haven't registered any components.
 
-我们首先实现一个最简单的 `blockexit` 组件，这个组件就是保持程序一直运行不退出，使用 `Ctrl-C` 关闭。
+Let's first implement a simple `blockexit` component, which keeps the program running and allows it to be closed using `Ctrl-C`.
 
-创建 `components/blockexit/blockexit.go`：
+Create `components/blockexit/blockexit.go`:
 
 ```go
 package blockexit
@@ -107,7 +107,7 @@ func (b *blockExitComponent) Start(ctx context.Context) error {
 }
 ```
 
-然后修改 `main.go`
+Then modify `main.go`:
 
 ```go
 package main
@@ -115,7 +115,7 @@ package main
 import (
     "github.com/gopherd/core/service"
 
-    // 引入组件，组件包的 init 方法会注册组件
+    // Import the component, the init method of the component package will register the component
     _ "github.com/gopherd/example/components/blockexit"
 )
 
@@ -124,23 +124,26 @@ func main() {
 }
 ```
 
-main 函数没有变化，永远都只需要这样，我们修改的是增加了一个 import 将实现的组件引入。现在可以在命令行中执行了：
+The main function hasn't changed; it will always remain this way. We modified it by adding an import to include the implemented component. Now you can execute it in the command line:
 
 ```sh
 echo '{"Components":[{"Name":"github.com/gopherd/example/components/blockexit"}]}' | go run main.go -
 ```
 
-运行后你将看到输出 `Starting blockExitComponent`，并且程序不退出，`Ctrl-C` 即可退出。
+After running, you'll see the output `Starting blockExitComponent`, and the program won't exit. Use `Ctrl-C` to exit.
 
-*注*：这里需要注意，组件的名称推荐使用包名，这样可以避免不小心名称重复；这里的运行没有使用配置文件，而是通过标准输入读取的配置信息，配置中只配置了一个 blockexit 组件。
+*Note*: Pay attention to the following:
+* It's recommended to use the package name as the component name to avoid accidental name duplication.
+* This run doesn't use a configuration file but reads configuration information through standard input, which only configures one blockexit component.
+* We also support obtaining configurations from files and HTTP services. Use `-h` to view the usage help.
 
-## 3. 基本组件实现
+## 3. Basic Component Implementation
 
-刚才的组件过于简单，接下来让我们从实现一个基本的 HTTP 服务器组件开始，以理解组件的基本结构和注册过程。
+The previous component was too simple. Let's start by implementing a basic HTTP server component to understand the basic structure and registration process of components.
 
-### 3.1 HTTP 服务器组件
+### 3.1 HTTP Server Component
 
-首先，我们创建 HTTP 服务器组件的 API 定义。在 `components/httpserver/httpserverapi/httpserverapi.go` 中：
+First, let's create the API definition for the HTTP server component. In `components/httpserver/httpserverapi/httpserverapi.go`:
 
 ```go
 package httpserverapi
@@ -152,7 +155,7 @@ type Component interface {
 }
 ```
 
-然后，我们实现 HTTP 服务器组件。在 `components/httpserver/httpserver.go` 中：
+Then, we implement the HTTP server component. In `components/httpserver/httpserver.go`:
 
 ```go
 package httpserver
@@ -174,7 +177,7 @@ func init() {
 	})
 }
 
-// 断言 httpserverComponent 实现了接口 httpserverapi.Component
+// Assert that httpserverComponent implements the httpserverapi.Component interface
 var _ httpserverapi.Component = (*httpserverComponent)(nil)
 
 type httpserverComponent struct {
@@ -213,16 +216,16 @@ func (h *httpserverComponent) HandleFunc(pattern string, handler http.HandlerFun
 }
 ```
 
-### 3.2 基本配置
+### 3.2 Basic Configuration
 
-创建一个基本的 `config.json` 文件：
+Create a basic `config.json` file:
 
 ```json
 {
     "Components": [
         {
             "Name": "github.com/gopherd/example/components/httpserver",
-            "UUID": "http",
+            "UUID": "httpserver",
             "Options": {
                 "Addr": ":8080"
             }
@@ -234,9 +237,9 @@ func (h *httpserverComponent) HandleFunc(pattern string, handler http.HandlerFun
 }
 ```
 
-### 3.3 更新主程序
+### 3.3 Updating the Main Program
 
-现在，我们更新 `main.go` 来导入 HTTP 服务器组件：
+Now, let's update `main.go` to import the HTTP server component:
 
 ```go
 package main
@@ -244,7 +247,7 @@ package main
 import (
     "github.com/gopherd/core/service"
 
-    // 引入组件，组件包的 init 方法会注册组件
+    // Import components, the init method of the component package will register the components
     _ "github.com/gopherd/example/components/blockexit"
     _ "github.com/gopherd/example/components/httpserver"
 )
@@ -254,54 +257,57 @@ func main() {
 }
 ```
 
-现在，你可以运行你的应用：
+Now you can run your application:
 
 ```bash
 go run main.go config.json
 ```
 
-这将启动一个基本的 HTTP 服务器，监听在 8080 端口。启动后你将看到如下的输出
+This will start a basic HTTP server listening on port 8080. After starting, you'll see output like this:
 
 ```
 Starting HTTP server addr :8080
 Starting blockExitComponent
 ```
 
-按 `Ctrl-C` 后程序将会关闭，将输出
+After pressing `Ctrl-C`, the program will close and output:
 
 ```
 Received interrupt signal
 Shutting down HTTP server
 ```
 
-这里我们可以基本说明一下了：
+Here we can basically explain:
 
-**组件的开发**: 嵌入一个 component.BaseComponent[T]，范型参数 T 是组件的配置，代码中通过组件的 Options() 获取到，然后可以选择实现组件的 `Init`，`Start`，`Shutdown`（还有这里没有出现的 `Uninit`）等生命周期的函数。
-**组件的组册**: 在 init 函数中调用 component.Register 根据组件的名称注册了一个构造函数用户创建出我们实现的组件对象，这个函数我们不需要去初始化组件的任何数据，任何组件都只需要 new 创建就可以了。最后在 main 中引入这个包即可完成注册。
-**组件的配置**: 注册的组件并不会自己就运行，需要在配置文件中的 Components 数组下增加这个组件的配置。
-**组件的顺序**: Components 中的顺序就是 Init 和 Start 函数的调用顺序，Shutdown 和 Uninit 则是反过来的，根据我们当前的配置，执行的两个组件的生命周期函数顺序如下
+**Component Development**: Embed a component.BaseComponent[T], where the generic parameter T is the component's configuration, accessed through the component's Options() in the code. Then you can choose to implement the component's lifecycle functions such as `Init`, `Start`, `Shutdown` (and `Uninit` which hasn't appeared here).
+
+**Component Registration**: In the init function, component.Register is called to register a constructor function that creates our implemented component object based on the component's name. This function doesn't need to initialize any data for the component; for any component, just using new to create is sufficient. Finally, importing this package in main completes the registration.
+
+**Component Configuration**: Registered components won't run by themselves; they need to be added to the Components array in the configuration file.
+
+**Component Order**: The order in Components is the calling order of Init and Start functions, while Shutdown and Uninit are in reverse order. Based on our current configuration, the lifecycle function execution order of the two components is as follows:
 
 ```
 blockexit.Init      -> httpserver.Init    ->
 blockexit.Start     -> httpserver.Start   ->
 httpserver.Shutdown -> blockexit.Shutdown ->
-httpserver.Uninit   -> blockexit.Uninit   -> 程序退出
+httpserver.Uninit   -> blockexit.Uninit   -> Program exits
 ```
 
-## 4. 配置管理和模板特性
+## 4. Configuration Management and Template Features
 
-Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我们深入了解如何使用这些功能。
+Gopherd/core provides a flexible configuration management mechanism, including template features. Let's delve into how to use these functionalities.
 
-### 4.1 配置文件结构
+### 4.1 Configuration File Structure
 
-配置文件通常是一个 JSON 文件，包含以下主要部分：
+The configuration file is typically a JSON file containing the following main sections:
 
-- `Context`: 全局上下文，可以在模板中使用
-- `Components`: 组件列表，每个组件包含必需的 `Name` 和可选的 `UUID`、`Refs`、`Options`
+- `Context`: Global context, which can be used in templates
+- `Components`: List of components, each containing a required `Name` and optional `UUID`, `Refs`, `Options`
 
-### 4.2 模板语法和使用
+### 4.2 Template Syntax and Usage
 
-配置文件支持 Go 的模板语法。你可以使用 `{{.}}` 来引用上下文中的值。例如：
+The configuration file supports Go's template syntax. You can use `{{.}}` to reference values in the context. For example:
 
 ```json
 {
@@ -328,22 +334,20 @@ Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我�
 }
 ```
 
-在这个例子中：
+In this example:
 
-- `{{.R.HTTPServer}}` 会被替换为 "httpserver"
-- `{{add 8000 .ID}}` 会被计算为 9001（8000 + 1001）
+- `{{.R.HTTPServer}}` will be replaced with "httpserver"
+- `{{add 8000 .ID}}` will be calculated as 9001 (8000 + 1001)
 
-要使用模板，在运行程序是需要加上 `-T` 参数，表示启用模板，默认是不启用的。
+To use templates, you need to add the `-T` parameter when running the program, indicating that templates are enabled. By default, they are not enabled.
 
-## 5. 实现核心组件
+## 5. Implementing Core Components
 
-现在，让我们实现其他核心组件，包括 EventSystem，Auth 和 Users 组件。
+Now, let's implement other core components, including EventSystem, Auth, and Users components.
 
-### 5.1 事件系统组件实现
+### 5.1 Event System Component Implementation
 
-首先，让我们实现事件系统组件。
-
-
+First, let's implement the event system component.
 
 ```go
 package eventsystem
@@ -364,7 +368,7 @@ func init() {
 	})
 }
 
-// 我们没有定义一个单独的 eventsystemapi 的包，直接使用了 event.Dispatcher 作为组件的导出接口
+// We didn't define a separate eventsystemapi package, directly using event.Dispatcher as the component's exported interface
 var _ event.Dispatcher[reflect.Type] = (*eventsystemComponent)(nil)
 
 type eventsystemComponent struct {
@@ -375,18 +379,18 @@ type eventsystemComponent struct {
 }
 
 func (com *eventsystemComponent) Init(ctx context.Context) error {
-    ordered := true
-    if com.Options().Ordered != nil {
-        ordered = *com.Options().Ordered
-    } 
+	ordered := true
+	if com.Options().Ordered != nil {
+		ordered = *com.Options().Ordered
+	}
 	com.Dispatcher = event.NewDispatcher[reflect.Type](ordered)
 	return nil
 }
 ```
 
-### 5.2 Auth 组件
+### 5.2 Auth Component
 
-Auth 组件处理用户认证。在 `components/auth/auth.go` 中：
+The Auth component handles user authentication. In `components/auth/auth.go`:
 
 ```go
 package auth
@@ -430,7 +434,7 @@ func (a *authComponent) Start(ctx context.Context) error {
 
 func (a *authComponent) handleLogin(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
-	// 简单的认证逻辑，实际应用中应该更加安全
+	// Simple authentication logic, should be more secure in actual applications
 	if username != "" {
 		a.Refs().EventSystem.Component().DispatchEvent(context.Background(), &authapi.LoginEvent{Username: username})
 		w.Write([]byte("Login successful"))
@@ -440,7 +444,7 @@ func (a *authComponent) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-在 `components/auth/authapi/authapi.go` 中：
+In `components/auth/authapi/authapi.go`:
 
 ```go
 package authapi
@@ -453,16 +457,16 @@ import (
 )
 
 type Component interface {
-	// 如果有的话，可以在这里定义 Auth 组件的公共方法
-    // 如果没有，则可以不定义这个接口
+	// Define public methods for the Auth component here, if any
+    // If there are none, this interface can be omitted
 }
 
-// 事件也可以定义在这里，或者项目中可以集中定义事件
+// Events can also be defined here, or events can be centrally defined in the project
 type LoginEvent struct {
 	Username string
 }
 
-// 以下关于事件的类型和 Listener 代码可以使用 github.com/gopherd/tools/cmd/eventer 工具生成，通过 go generate
+// The following code about event types and Listeners can be generated using the github.com/gopherd/tools/cmd/eventer tool, via go generate
 var loginEventType = reflect.TypeOf((*LoginEvent)(nil))
 
 func (e *LoginEvent) Typeof() reflect.Type {
@@ -474,10 +478,9 @@ func LoginEventListener(f func(context.Context, *LoginEvent) error) event.Listen
 }
 ```
 
-### 5.3 Users 组件
+### 5.3 Users Component
 
-Users 组件处理用户相关的功能。在 `components/users/users.go`
-
+The Users component handles user-related functionality. In `components/users/users.go`:
 
 ```go
 package users
@@ -548,15 +551,15 @@ func (u *usersComponent) onLoginEvent(ctx context.Context, e *authapi.LoginEvent
 }
 ```
 
-现在我们已经实现了核心组件，让我们继续完善我们的应用程序。
+Now that we have implemented the core components, let's continue to refine our application.
 
-## 6. 组件依赖和引用
+## 6. Component Dependencies and References
 
-### 6.1 组件间依赖关系
+### 6.1 Inter-component Dependencies
 
-在我们的示例中，Auth 和 Users 组件都依赖于 HTTPServer 和 EventSystem 组件。这种依赖关系通过 `Refs` 字段和配置文件中的 UUID 来建立。
+In our example, both the Auth and Users components depend on the HTTPServer and EventSystem components. These dependencies are established through the `Refs` field and the UUID in the configuration file.
 
-例如，在 Auth 组件中：
+For example, in the Auth component:
 
 ```go
 type authComponent struct {
@@ -569,9 +572,9 @@ type authComponent struct {
 }
 ```
 
-这里，`HTTPServer` 和 `EventSystem` 字段定义了 Auth 组件对这两个组件的依赖。
+Here, the `HTTPServer` and `EventSystem` fields define the Auth component's dependencies on these two components.
 
-在配置文件中，我们通过 `Refs` 字段来指定这些依赖，依赖的值是对应组件的 UUID：
+In the configuration file, we specify these dependencies through the `Refs` field, where the value is the UUID of the corresponding component:
 
 ```json
 {
@@ -586,19 +589,19 @@ type authComponent struct {
 }
 ```
 
-*注*：可能有人会问，为什么不用组件名称作为依赖的依据，而需要一个 UUID 呢？因为考虑到某些组件在一个服务中可能存在多个，比如 DB，连接不同库的产生了多个 DB 组件示例，在引用时根据组件名是区分不出来的。
+*Note*: Some might ask, why not use the component name as the basis for dependencies, and instead need a UUID? This is because some components may exist multiple times in a service, such as DB, connecting to different databases resulting in multiple DB component instances. When referencing, it's not possible to distinguish based on the component name.
 
-### 6.2 API包的作用和实现
+### 6.2 Role and Implementation of API Packages
 
-API 包（如 `httpserverapi`、`authapi`）在我们的架构中扮演着关键角色。它们定义了每个组件对外暴露的接口，使得其他组件可以依赖这些接口而不是具体实现。
+API packages (such as `httpserverapi`, `authapi`) play a crucial role in our architecture. They define the interfaces exposed by each component, allowing other components to depend on these interfaces rather than specific implementations.
 
-这种设计有以下几个好处：
+This design has several benefits:
 
-1. 解耦：组件之间通过接口而不是具体实现进行交互，降低了耦合度。
-2. 灵活性：可以轻松替换组件的实现，只要新的实现满足接口定义。
-3. 避免循环依赖：通过将接口定义和实现分离，可以有效避免包级别的循环依赖问题。
+1. Decoupling: Components interact through interfaces rather than specific implementations, reducing coupling.
+2. Flexibility: It's easy to replace component implementations as long as the new implementation satisfies the interface definition.
+3. Avoiding Circular Dependencies: By separating interface definitions and implementations, package-level circular dependencies can be effectively avoided.
 
-例如，`httpserverapi.Component` 接口定义了 HTTP 服务器组件应该提供的功能，而不涉及具体实现细节：
+For example, the `httpserverapi.Component` interface defines the functionality that the HTTP server component should provide, without involving specific implementation details:
 
 ```go
 type Component interface {
@@ -606,9 +609,9 @@ type Component interface {
 }
 ```
 
-其他组件（如 Auth 和 Users）可以依赖这个接口，而不需要知道 HTTP 服务器的具体实现细节。
+Other components (such as Auth and Users) can depend on this interface without needing to know the specific implementation details of the HTTP server.
 
-让我们扩展我们的配置文件，添加的新开发的组件：
+Let's expand our configuration file to add the newly developed components:
 
 ```json
 {
@@ -663,7 +666,7 @@ type Component interface {
 }
 ```
 
-然后更新 `main.go`
+Then update `main.go`:
 
 ```go
 package main
@@ -671,7 +674,7 @@ package main
 import (
 	"github.com/gopherd/core/service"
 
-	// 引入组件，组件包的 init 方法会注册组件
+	// Import components, the init method of the component package will register components
 	_ "github.com/gopherd/example/components/auth"
 	_ "github.com/gopherd/example/components/blockexit"
 	_ "github.com/gopherd/example/components/eventsystem"
@@ -684,13 +687,13 @@ func main() {
 }
 ```
 
-然后我们就可以运行了，注意因为要使用模板，启动时增加了 `-T` 参数。
+Now we can run it, noting that we add the `-T` parameter when starting to use templates.
 
 ```sh
 go run main.go -T config.json
 ```
 
-此时可以看到一下输出：
+At this point, you should see the following output:
 
 ```
 Starting Auth component
@@ -699,44 +702,43 @@ Starting HTTP server addr :9001
 Starting blockExitComponent
 ```
 
-我们在浏览器访问一下地址 [http://localhost:9001/login?username=xiaowang]() 去登录一下，也可以使用 curl 命令：
+Let's try logging in by visiting [http://localhost:9001/login?username=xiaowang]() in a browser, or using the curl command:
 
 ```sh
 curl http://localhost:9001/login?username=xiaowang
 ```
 
-一切正常的话，访问会收到 `Login successful` 的返回，控制输出
+If everything is normal, the access will receive a `Login successful` response, and the control output will show:
 
 ```
 User logged in username xiaowang
 ```
 
-这是 users 组件监听的 LoginEvent 事件的输出。到现在，功能都正常运作了，我们所开发的就是这样一个一个的组件，同作依赖注入实现相互调用，也可通过事件系统通信。接下来我们开发一个日志组件来处理日志。
+This is the output of the LoginEvent event that the users component is listening to. Now, everything is functioning normally. What we have developed is a series of components like this, implementing mutual calls through dependency injection, and also communicating through the event system. Next, let's develop a logger component to handle logging.
 
+## 7. Logging System
 
-## 7. 日志系统
+Gopherd/core uses the `log/slog` package from the Go standard library for logging. Each component can use its `Logger()` method to obtain a Logger with component context to output logs, which is the recommended approach as it tracks which component the log originates from.
 
-Gopherd/core 使用 Go 标准库的 `log/slog` 包进行日志记录。每个组件都可以使用其 `Logger()` 方法获取带有组件上下文的 Logger 来输出日志，这也是建议的方式，它追踪了日志源于那个组件。
+### 7.1 Using the log/slog Package
 
-### 7.1 使用 log/slog 包
-
-在组件中使用日志的示例：
+Example of using logs in a component:
 
 ```go
 func (c *myComponent) doSomething() {
     c.Logger().Info("Doing something", "key", "value")
-    // 或者
+    // or
     c.Logger().Info("Doing something", slog.String("key", "value"))
 }
 ```
 
-`Gopherd/core` 只使用 `log/slog` 日志工具，关于 `log/slog` 可以参见这个文章 [https://betterstack.com/community/guides/logging/logging-in-go/]() 的介绍说明以及官方文档。总之在 `log/slog` 出来之后已经不再推荐自己开发或者使用其他的开源日志系统了，其他各种关于日志的自定义处理都可以通过实现 `slog.Handler` 来完成。组件的 `Logger()` 方法则是获取一个含有组件基本上下文信息的 `*slog.Logger`。
+`Gopherd/core` only uses the `log/slog` logging tool. For information about `log/slog`, you can refer to this article [https://betterstack.com/community/guides/logging/logging-in-go/]() for an introduction and explanation, as well as the official documentation. In short, after the introduction of `log/slog`, it is no longer recommended to develop your own or use other open-source logging systems. Any other custom handling of logs can be done by implementing `slog.Handler`. The `Logger()` method of components is to obtain a `*slog.Logger` containing basic context information of the component.
 
-截至目前，我们还没有输出过日志，而使用了 fmt.Println，接下来我们将日志的初始化等操作也包装成一个组件并配置到 Components 中。
+Up to now, we haven't output any logs, but have been using fmt.Println. Next, we will package the initialization of logs into a component and configure it in Components.
 
-### 7.2 实现一个 logger 组件
+### 7.2 Implementing a Logger Component
 
-我们增加 `components/logger/logger.go`
+Let's add `components/logger/logger.go`:
 
 ```go
 package logger
@@ -761,9 +763,9 @@ func init() {
 
 type loggerComponent struct {
 	component.BaseComponent[struct {
-		JSON   bool       // 是否使用 json 格式输出
-		Level  slog.Level // 日志等级
-		Output string     // 日志输出到哪里，这里简单的实现了 stderr, stdout, discard
+		JSON   bool       // Whether to use JSON format output
+		Level  slog.Level // Log level
+		Output string     // Where to output logs, here we simply implemented stderr, stdout, discard
 	}]
 }
 
@@ -800,7 +802,7 @@ func (com *loggerComponent) createOutput() (io.Writer, error) {
 }
 ```
 
-然后更新 `main.go`
+Then update `main.go`:
 
 ```go
 package main
@@ -808,7 +810,7 @@ package main
 import (
 	"github.com/gopherd/core/service"
 
-	// 引入组件，组件包的 init 方法会注册组件
+	// Import components, the init method of the component package will register components
 	_ "github.com/gopherd/example/components/auth"
 	_ "github.com/gopherd/example/components/blockexit"
 	_ "github.com/gopherd/example/components/eventsystem"
@@ -822,7 +824,7 @@ func main() {
 }
 ```
 
-配置文件 `config.json` 中也许加入 logger，考虑到大家都应该要使用日志，logger 组件应该最先初始化，所以 logger 要作为第一个组件（在配置组件时，有时候需要考虑一下哪些组件在前，哪些在后，比如之前 blockexit 总是最后一个， httpserver 放在倒数第二则是希望其他组件都准备好了之后才启动 http 接口给客户端访问）。最新的 `config.json` 如下：
+In the `config.json` configuration file, also add logger. Considering that everyone should use logs, the logger component should be initialized first, so logger should be the first component (when configuring components, sometimes you need to consider which components go first and which go last, for example, blockexit is always the last one, and httpserver is placed second to last because we want other components to be ready before starting the HTTP interface for client access). The latest `config.json` is as follows:
 
 ```json
 {
@@ -884,7 +886,7 @@ func main() {
 }
 ```
 
-把之前使用 `fmt.Println` 输出的地方都改成组件的 `Logger().Info` 函数。比如 `httpserver` 组件的 Start 函数：
+Change all the places where `fmt.Println` was used for output to the component's `Logger().Info` function. For example, the Start function of the `httpserver` component:
 
 ```go
 func (h *httpserverComponent) Start(ctx context.Context) error {
@@ -898,27 +900,26 @@ func (h *httpserverComponent) Start(ctx context.Context) error {
 }
 ```
 
-其他的也依次替换成日志，然后运行程序：
+Replace others with logs as well, then run the program:
 
 ```sh
 go run main.go -T config.json
 ```
 
-输出大概像这样了，比较冗长：
+The output should look something like this, quite verbose:
 
 ```
 time=2024-08-11T01:10:34.156+08:00 level=INFO msg="component initialized" component=github.com/gopherd/example/components/logger
 time=2024-08-11T01:10:34.157+08:00 level=INFO msg="initializing component" component=github.com/gopherd/example/components/eventsystem#eventsystem
 time=2024-08-11T01:10:34.157+08:00 level=INFO msg="component initialized" component=github.com/gopherd/example/components/eventsystem#eventsystem
-....... 其他省略 .......
+....... other omitted .......
 ```
 
-事实上，框架在所有组件的 4 个生命周期函数调用前后都有日志，所以通常组件实现时生命周开始的地方不用在打日志了。
+In fact, the framework logs before and after calling all 4 lifecycle functions of the components, so usually when implementing components, there's no need to log again at the beginning of the lifecycle.
 
+Alright, by now, we have implemented the basic structure of our app. For more functionality, we just need to develop components and configure them. Each component completes its own work. Other things we use, including `DB` and `redis`, should be wrapped as components for use. Anything can be provided as a component for use. But sometimes there are some auxiliary functions that are still provided as corresponding packages. Components are for managing resources and functionalities with lifecycles.
 
-好了，到现在，我们的基本的 app 结构都实现了，需要更多的功能就不同开发组件，配置组件就可以了。每个组件完成自己的工作。我们使用的其他的包括 `DB`，`redis` 都应该包装成组件以供使用，任何东西就可以作为组件提供使用。但有时后有一些辅助功能，函数，仍然提供为相应的包，组件是管理有生命周期的各类资源，功能等。
-
-最后我们在看一下当前的目录结构：
+Finally, let's take a look at the current directory structure:
 
 ```
 example/
@@ -943,82 +944,80 @@ example/
 └── main.go
 ```
 
-这个示例项目代码托管在 [https://github.com/gopherd/example]()。
+The code for this example project is hosted at [https://github.com/gopherd/example]().
 
+## 8. Advanced Topics
 
-## 8. 高级主题
+### 8.1 Detailed Explanation of Component Dependency Mechanism
 
-### 8.1 组件依赖机制详解
+The component dependency mechanism in Gopherd/core is based on several key concepts:
 
-Gopherd/core 的组件依赖机制基于以下几个关键概念：
+1. UUID: Each component that can be depended upon has a unique identifier (UUID).
+2. Refs: Components declare their dependencies on other components through the Refs field.
+3. Configuration File: In the configuration file, the UUID of the dependent component is associated with the components that depend on it through the Refs field.
 
-1. UUID：每个可被依赖的组件都有一个唯一标识符（UUID）。
-2. Refs：组件通过 Refs 字段声明对其他组件的依赖。
-3. 配置文件：在配置文件中，通过 Refs 字段将依赖组件的 UUID 与被依赖组件关联起来。
+The framework automatically parses these dependency relationships during initialization and injects the correct component instances into the components that depend on them.
 
-框架在初始化时会自动解析这些依赖关系，并将正确的组件实例注入到依赖它们的组件中。
+### 8.2 API Package Design Principles
 
-### 8.2 API包设计原则
+When designing API packages, the following principles should be followed:
 
-设计 API 包时，应遵循以下原则：
+1. Only define interfaces, do not include implementation details.
+2. Interfaces should be small and focused, only including necessary methods.
+3. Use generic types, avoid introducing types specific to a particular implementation.
+4. Consider future extensibility, but don't over-design.
 
-1. 只定义接口，不包含实现细节。
-2. 接口应该是小而精的，只包含必要的方法。
-3. 使用通用的类型，避免引入特定实现的类型。
-4. 考虑未来的扩展性，但不过度设计。
+### 8.3 Avoiding Circular Dependencies
 
-### 8.3 避免循环依赖
+To avoid circular dependencies, the following strategies can be adopted:
 
-为了避免循环依赖，可以采取以下策略：
+1. Use dependency injection: Inject dependencies through the Refs field instead of direct imports.
+2. Separate interfaces and implementations: Put interface definitions in separate API packages.
+3. Redesign: If circular dependencies occur, it may indicate a need to reconsider the division of component responsibilities.
 
-1. 使用依赖注入：通过 Refs 字段注入依赖，而不是直接导入。
-2. 分离接口和实现：将接口定义放在单独的 API 包中。
-3. 重新设计：如果出现循环依赖，可能意味着需要重新考虑组件的职责划分。
+### 8.4 Command Line Arguments
 
-### 8.4 命令行参数
+Gopherd/core provides several useful command line arguments:
 
-Gopherd/core 提供了几个有用的命令行参数：
+- `-v`: Print version information and exit
+- `-p`: Print parsed configuration and exit
+- `-t`: Test configuration validity and exit
+- `-T`: Enable configuration template processing
 
-- `-v`: 打印版本信息并退出
-- `-p`: 打印解析后的配置并退出
-- `-t`: 测试配置有效性并退出
-- `-T`: 启用配置模板处理
-
-使用示例：
+Usage examples:
 
 ```bash
-# 启用模板处理并运行应用
+# Enable template processing and run the application
 go run main.go -T config.json
 
-# 打印解析后的配置，不带 -T 输出的就是原来的 config.json，而带有 -T 的输出的就是经过模版处理后的配置
+# Print parsed configuration. Without -T, it outputs the original config.json, while with -T, it outputs the configuration after template processing
 go run main.go -p config.json
 go run main.go -p -T config.json
 
-# 测试配置有效性
+# Test configuration validity
 go run main.go -t config.json
 go run main.go -t -T config.json
 ```
 
-### 8.5 测试策略
+### 8.5 Testing Strategy
 
-Gopherd/core 的组件设计使得测试变得简单。
+The component design of Gopherd/core makes testing simple.
 
-1. 为每个组件编写单元测试
-2. 使用模拟（mock）对象来模拟依赖组件
-3. 编写集成测试来测试组件间的交互
+1. Write unit tests for each component
+2. Use mock objects to simulate dependent components
+3. Write integration tests to test interactions between components
 
+### 8.6 Resource Management
 
-### 8.6 资源管理
+1. Allocate resources in the Init method, release resources in the Uninit method.
+2. Use defer statements to ensure resources are properly released.
+3. Gracefully close long-running operations in the Shutdown method.
+4. The Init method should only be responsible for initializing itself. At this point, it should not use dependent components as they may not have completed initialization. If you need to use dependent components for initialization, that part of initialization should be placed in Start. Remember this!
 
-1. 在 Init 方法中分配资源，在 Uninit 方法中释放资源。
-2. 使用 defer 语句确保资源被正确释放。
-3. 在 Shutdown 方法中优雅地关闭长时间运行的操作。
-4. Init 方法应该只负责初始化自己，这个时候不应该去使用依赖的组件，因为他可能还没有完成初始化，如果需要使用依赖的组件执行初始化，那么这部分初始化应该放在 Start 中。切记！！
+## 9. Conclusion
 
-## 9. 总结
+The Gopherd/core framework provides a powerful and flexible way to build modular Go applications. By using the component system, dependency injection, and event mechanism, highly maintainable and extensible applications can be created.
 
-Gopherd/core 框架提供了一种强大而灵活的方式来构建模块化的 Go 应用程序。通过使用组件系统、依赖注入和事件机制，可以创建出高度可维护和可扩展的应用。
+This guide covers the core concepts and usage methods of Gopherd/core, from basic component implementation to advanced features and best practices. By following these guidelines, developers can fully leverage the advantages of the Gopherd/core framework to build robust, efficient backend services.
 
-本指南涵盖了 Gopherd/core 的核心概念和使用方法，从基本的组件实现到高级特性和最佳实践。通过遵循这些指导原则，开发者可以充分利用 Gopherd/core 框架的优势，构建出健壮、高效的后端服务。
-
-随着你对框架的深入使用，你会发现更多的可能性和用法。不断实践和探索，将帮助你更好地掌握 Gopherd/core，并在实际项目中发挥其最大潜力。
+As you delve deeper into using the framework, you'll discover more possibilities and uses. Continuous practice and exploration will help you better master Gopherd/core and maximize its potential in real projects.
