@@ -1,4 +1,4 @@
-# Gopherd/core 框架全面使用指南
+# Gopherd/core 框架使用指南
 
 ## 1. 介绍
 

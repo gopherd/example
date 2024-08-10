@@ -1,4 +1,4 @@
-# Comprehensive Guide to Using the Gopherd/core Framework
+# Gopherd/core: A Comprehensive Guide
 
 ## 1. Introduction
 
