@@ -345,7 +345,7 @@ To use templates, you need to add the `-T` parameter when running the program, i
 
 The configuration uses the `JSON` format, but considering that some explanations may be needed in the configuration, it supports line comments starting with `//` at the beginning of a line (leading whitespace is allowed). Block comments like `/* ... */` are not supported.
 Examples of valid comments:
-```json
+```jsonc
 {
     // Valid comment
     // Still a valid comment
