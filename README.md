@@ -59,11 +59,11 @@ Let's start by creating a minimal main program. In `main.go`:
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -113,14 +113,14 @@ Then modify `main.go`:
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 
-    // Import the component, the init method of the component package will register the component
-    _ "github.com/gopherd/example/components/blockexit"
+	// Import the component, the init method of the component package will register the component
+	_ "github.com/gopherd/example/components/blockexit"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -151,7 +151,7 @@ package httpserverapi
 import "net/http"
 
 type Component interface {
-    HandleFunc(pattern string, handler http.HandlerFunc)
+	HandleFunc(pattern string, handler http.HandlerFunc)
 }
 ```
 
@@ -245,15 +245,15 @@ Now, let's update `main.go` to import the HTTP server component:
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 
-    // Import components, the init method of the component package will register the components
-    _ "github.com/gopherd/example/components/blockexit"
-    _ "github.com/gopherd/example/components/httpserver"
+	// Import components, the init method of the component package will register the components
+	_ "github.com/gopherd/example/components/blockexit"
+	_ "github.com/gopherd/example/components/httpserver"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -340,6 +340,38 @@ In this example:
 - `{{add 8000 .ID}}` will be calculated as 9001 (8000 + 1001)
 
 To use templates, you need to add the `-T` parameter when running the program, indicating that templates are enabled. By default, they are not enabled.
+
+### 4.3 Configure support for the simplest line comments
+
+The configuration uses the `JSON` format, but considering that some explanations may be needed in the configuration, it supports line comments starting with `//` at the beginning of a line (leading whitespace is allowed). Block comments like `/* ... */` are not supported.
+Examples of valid comments:
+```json
+{
+    // Valid comment
+    // Still a valid comment
+    "Context": {
+        // Also a valid comment
+        "ID": 1001
+    },
+    "Components": [
+        // Still a valid comment
+    ]
+}
+```
+Examples of invalid comments:
+```json
+{
+    /* Invalid comment */
+    "Context": { // Invalid comment
+        "ID": 1001, // Also an invalid comment
+    },
+    "Components": [
+        /*
+        Invalid comment
+        */
+    ]
+}
+```
 
 ## 5. Implementing Core Components
 
@@ -458,7 +490,7 @@ import (
 
 type Component interface {
 	// Define public methods for the Auth component here, if any
-    // If there are none, this interface can be omitted
+	// If there are none, this interface can be omitted
 }
 
 // Events can also be defined here, or events can be centrally defined in the project
@@ -471,6 +503,10 @@ var loginEventType = reflect.TypeOf((*LoginEvent)(nil))
 
 func (e *LoginEvent) Typeof() reflect.Type {
 	return loginEventType
+}
+
+func init() {
+	event.Register(new(LoginEvent))
 }
 
 func LoginEventListener(f func(context.Context, *LoginEvent) error) event.Listener[reflect.Type] {
@@ -563,12 +599,12 @@ For example, in the Auth component:
 
 ```go
 type authComponent struct {
-    component.BaseComponentWithRefs[struct{
+	component.BaseComponentWithRefs[struct{
 		Secret string
-    }, struct{
-        HTTPServer  component.Reference[httpserverapi.Component]
-        EventSystem component.Reference[event.Dispatcher[reflect.Type]]
-    }]
+	}, struct{
+		HTTPServer  component.Reference[httpserverapi.Component]
+		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+	}]
 }
 ```
 
@@ -605,7 +641,7 @@ For example, the `httpserverapi.Component` interface defines the functionality t
 
 ```go
 type Component interface {
-    HandleFunc(pattern string, handler http.HandlerFunc)
+	HandleFunc(pattern string, handler http.HandlerFunc)
 }
 ```
 
@@ -726,9 +762,9 @@ Example of using logs in a component:
 
 ```go
 func (c *myComponent) doSomething() {
-    c.Logger().Info("Doing something", "key", "value")
-    // or
-    c.Logger().Info("Doing something", slog.String("key", "value"))
+	c.Logger().Info("Doing something", "key", "value")
+	// or
+	c.Logger().Info("Doing something", slog.String("key", "value"))
 }
 ```
 
@@ -838,13 +874,13 @@ In the `config.json` configuration file, also add logger. Considering that every
         }
     },
     "Components": [
-		{
-			"Name": "github.com/gopherd/example/components/logger",
-			"Options": {
-				"Level": "DEBUG",
-				"Output": "stdout"
-			}
-		},
+        {
+            "Name": "github.com/gopherd/example/components/logger",
+                "Options": {
+                "Level": "DEBUG",
+                "Output": "stdout"
+            }
+        },
         {
             "Name": "github.com/gopherd/example/components/eventsystem",
             "UUID": "{{.R.EventSystem}}",

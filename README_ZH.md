@@ -59,11 +59,11 @@ example/
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -113,14 +113,14 @@ func (b *blockExitComponent) Start(ctx context.Context) error {
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 
-    // 引入组件，组件包的 init 方法会注册组件
-    _ "github.com/gopherd/example/components/blockexit"
+	// 引入组件，组件包的 init 方法会注册组件
+	_ "github.com/gopherd/example/components/blockexit"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -151,7 +151,7 @@ package httpserverapi
 import "net/http"
 
 type Component interface {
-    HandleFunc(pattern string, handler http.HandlerFunc)
+	HandleFunc(pattern string, handler http.HandlerFunc)
 }
 ```
 
@@ -245,15 +245,15 @@ func (h *httpserverComponent) HandleFunc(pattern string, handler http.HandlerFun
 package main
 
 import (
-    "github.com/gopherd/core/service"
+	"github.com/gopherd/core/service"
 
-    // 引入组件，组件包的 init 方法会注册组件
-    _ "github.com/gopherd/example/components/blockexit"
-    _ "github.com/gopherd/example/components/httpserver"
+	// 引入组件，组件包的 init 方法会注册组件
+	_ "github.com/gopherd/example/components/blockexit"
+	_ "github.com/gopherd/example/components/httpserver"
 )
 
 func main() {
-    service.Run()
+	service.Run()
 }
 ```
 
@@ -340,6 +340,42 @@ Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我�
 - `{{add 8000 .ID}}` 会被计算为 9001（8000 + 1001）
 
 要使用模板，在运行程序是需要加上 `-T` 参数，表示启用模板，默认是不启用的。
+
+### 4.3 配置支持最简单的行注释
+
+配置使用 `JSON` 格式，但是考虑到配置中可能需要有一些说明，所以支持了以 `//` 行首（可以有前导空白符）的行注释，不支持 `/* ... */` 这种块注释。
+
+合法的注释例子：
+
+```json
+{
+	// 合法的注释
+	// 还是合法的注释
+	"Context": {
+		// 也是合法的注释
+		"ID": 1001
+	},
+	"Components": [
+		// 仍然是合法的注释
+	]
+}
+```
+
+不合法的注释例子：
+
+```json
+{
+	/* 不合法的注释 */
+	"Context": { // 不合法的注释
+		"ID": 1001, // 也是不合法的注释
+	},
+	"Components": [
+		/*
+		不合法的注释
+		*/
+	]
+}
+```
 
 ## 5. 实现核心组件
 
@@ -460,7 +496,7 @@ import (
 
 type Component interface {
 	// 如果有的话，可以在这里定义 Auth 组件的公共方法
-    // 如果没有，则可以不定义这个接口
+	// 如果没有，则可以不定义这个接口
 }
 
 // 事件也可以定义在这里，或者项目中可以集中定义事件
@@ -473,6 +509,10 @@ var loginEventType = reflect.TypeOf((*LoginEvent)(nil))
 
 func (e *LoginEvent) Typeof() reflect.Type {
 	return loginEventType
+}
+
+func init() {
+	event.Register(new(LoginEvent))
 }
 
 func LoginEventListener(f func(context.Context, *LoginEvent) error) event.Listener[reflect.Type] {
@@ -566,12 +606,12 @@ func (u *usersComponent) onLoginEvent(ctx context.Context, e *authapi.LoginEvent
 
 ```go
 type authComponent struct {
-    component.BaseComponentWithRefs[struct{
+	component.BaseComponentWithRefs[struct{
 		Secret string
-    }, struct{
-        HTTPServer  component.Reference[httpserverapi.Component]
-        EventSystem component.Reference[event.Dispatcher[reflect.Type]]
-    }]
+	}, struct{
+		HTTPServer  component.Reference[httpserverapi.Component]
+		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+	}]
 }
 ```
 
@@ -608,7 +648,7 @@ API 包（如 `httpserverapi`、`authapi`）在我们的架构中扮演着关键
 
 ```go
 type Component interface {
-    HandleFunc(pattern string, handler http.HandlerFunc)
+	HandleFunc(pattern string, handler http.HandlerFunc)
 }
 ```
 
@@ -730,9 +770,9 @@ Gopherd/core 使用 Go 标准库的 `log/slog` 包进行日志记录。每个组
 
 ```go
 func (c *myComponent) doSomething() {
-    c.Logger().Info("Doing something", "key", "value")
-    // 或者
-    c.Logger().Info("Doing something", slog.String("key", "value"))
+	c.Logger().Info("Doing something", "key", "value")
+	// 或者
+	c.Logger().Info("Doing something", slog.String("key", "value"))
 }
 ```
 
@@ -842,13 +882,13 @@ func main() {
         }
     },
     "Components": [
-		{
-			"Name": "github.com/gopherd/example/components/logger",
-			"Options": {
-				"Level": "DEBUG",
-				"Output": "stdout"
-			}
-		},
+        {
+            "Name": "github.com/gopherd/example/components/logger",
+                "Options": {
+                "Level": "DEBUG",
+                "Output": "stdout"
+            }
+        },
         {
             "Name": "github.com/gopherd/example/components/eventsystem",
             "UUID": "{{.R.EventSystem}}",
@@ -1020,6 +1060,7 @@ Gopherd/core 的组件设计使得测试变得简单。
 2. 使用 defer 语句确保资源被正确释放。
 3. 在 Shutdown 方法中优雅地关闭长时间运行的操作。
 4. Init 方法应该只负责初始化自己，这个时候不应该去使用依赖的组件，因为他可能还没有完成初始化，如果需要使用依赖的组件执行初始化，那么这部分初始化应该放在 Start 中。切记！！
+
 
 ## 9. 总结
 
