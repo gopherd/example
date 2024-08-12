@@ -343,8 +343,12 @@ To use templates, you need to add the `-T` parameter when running the program, i
 
 ### 4.3 Configure support for the simplest line comments
 
-The configuration uses the `JSON` format, but considering that some explanations may be needed in the configuration, it supports line comments starting with `//` at the beginning of a line (leading whitespace is allowed). Block comments like `/* ... */` are not supported.
+For configurations using the `JSON` format, we've taken into account that you might need to include some explanatory notes. Therefore, we support line comments that begin with `//` at the start of a line (allowing for leading whitespace). However, block comments using `/* ... */` are not supported.
+
+This approach allows you to add comments to your JSON configuration files for better readability and maintenance, while still maintaining compatibility with standard JSON parsers when the comments are stripped out.
+
 Examples of valid comments:
+
 ```json
 {
     // Valid comment
@@ -358,7 +362,9 @@ Examples of valid comments:
     ]
 }
 ```
+
 Examples of invalid comments:
+
 ```json
 {
     /* Invalid comment */
@@ -372,6 +378,37 @@ Examples of invalid comments:
     ]
 }
 ```
+
+### 4.4 How to Use TOML or YAML Format for Configuration
+
+First, you need to modify the main function.
+
+For the `TOML` format:
+
+```go
+func main() {
+    service.Run(service.WithEncoder(toml.Marshal), service.WithDecoder(toml.Unmarshal))
+}
+```
+
+For the `YAML` format:
+
+```go
+func main() {
+    service.Run(service.WithEncoder(yaml.Marshal), service.WithDecoder(yaml.Unmarshal))
+}
+```
+
+You can choose from several popular libraries for the `toml` and `yaml` packages. For example, the following libraries are widely supported:
+
+* [github.com/BurntSushi/toml](https://github.com/BurntSushi/toml)
+* [github.com/pelletier/go-toml/v2](https://github.com/pelletier/go-toml)
+* [gopkg.in/yaml.v3](https://github.com/go-yaml/yaml)
+* [github.com/goccy/go-yaml](https://github.com/goccy/go-yaml)
+
+*Note*: It's important to mention that the current support for `toml` and `yaml` is implemented through a conversion process. The configuration file is first parsed into a `map[string]any` using the provided Decoder, then encoded into JSON. The rest of the program will continue to use `json` thereafter.
+
+**By passing encoder and decoder parameters as demonstrated above, you can support configuration in any arbitrary format.**
 
 ## 5. Implementing Core Components
 

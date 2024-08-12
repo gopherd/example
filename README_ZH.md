@@ -296,7 +296,7 @@ httpserver.Uninit   -> blockexit.Uninit   -> 程序退出
 
 ## 4. 配置管理和模板特性
 
-Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我们深入了解如何使用这些功能。
+Gopherd/core 提供了灵活的配置管理机制，包括模板特性。支持 `json`，`toml`，`yaml` 三种配置格式，默认使用 `json`，让我们深入了解如何使用这些功能。
 
 ### 4.1 配置文件结构
 
@@ -341,9 +341,9 @@ Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我�
 
 要使用模板，在运行程序是需要加上 `-T` 参数，表示启用模板，默认是不启用的。
 
-### 4.3 配置支持最简单的行注释
+### 4.3 JSON 配置支持最简单的行注释
 
-配置使用 `JSON` 格式，但是考虑到配置中可能需要有一些说明，所以支持了以 `//` 行首（可以有前导空白符）的行注释，不支持 `/* ... */` 这种块注释。
+对于配置使用 `JSON` 格式，考虑到配置中可能需要有一些说明，所以支持了以 `//` 行首（可以有前导空白符）的行注释，不支持 `/* ... */` 这种块注释。
 
 合法的注释例子：
 
@@ -376,6 +376,37 @@ Gopherd/core 提供了灵活的配置管理机制，包括模板特性。让我�
 	]
 }
 ```
+
+### 4.4 如何使用 TOML 或 YAML 格式的配置，以及其他任意格式的配置
+
+首先需要修改 main 函数。
+
+对于 `TOML` 格式：
+
+```go
+func main() {
+	service.Run(service.WithEncoder(toml.Marshal), service.WithDecoder(toml.Unmarshal))
+}
+```
+
+对于 `YAML` 格式：
+
+```go
+func main() {
+	service.Run(service.WithEncoder(yaml.Marshal), service.WithDecoder(yaml.Unmarshal))
+}
+```
+
+其中的 `toml` 包和 `yaml` 包可以自行选择使用。比如以下几个流行的库均支持：
+
+* [github.com/BurntSushi/toml](https://github.com/BurntSushi/toml)
+* [github.com/pelletier/go-toml/v2](https://github.com/pelletier/go-toml)
+* [gopkg.in/yaml.v3](https://github.com/go-yaml/yaml)
+* [github.com/goccy/go-yaml](https://github.com/goccy/go-yaml)
+
+*注*: 需要说明的是，目前对 `toml` 和 `yaml` 的支持是通过一次转换的来的，即现将读取的配置文件根据传入的 Decoder 解析到一个 `map[string]any` 中，然后再将其编码成 json，后面程序中就会继续使用 `json` 了。
+
+**参照以上方式通过传递编码器，解码器参数，你可以支持任意格式的配置。**
 
 ## 5. 实现核心组件
 

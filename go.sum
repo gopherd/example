@@ -1,2 +1,10 @@
-github.com/gopherd/core v0.0.0-20240810065002-be7ad2d4718c h1:TpeQeTw81rqP+/nTT7f9p/JEjRhIYJsOUst1BGKilTI=
-github.com/gopherd/core v0.0.0-20240810065002-be7ad2d4718c/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
+github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
+github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/gopherd/core v0.0.0-20240812074656-1640cb9f913f h1:T6CggDV5B1xtQAcYX9kLIMgvTd8p5wX8dF6Vz/fXDNE=
+github.com/gopherd/core v0.0.0-20240812074656-1640cb9f913f/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
+github.com/gopherd/core v0.0.0-20240812095151-15613a2d75fd h1:h/j6yveUloCMI/tZdl/ZIksox/pJQwmmw4fdFu6oR6o=
+github.com/gopherd/core v0.0.0-20240812095151-15613a2d75fd/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
