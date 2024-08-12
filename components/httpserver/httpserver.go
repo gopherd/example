@@ -38,7 +38,7 @@ func (h *httpserverComponent) Init(ctx context.Context) error {
 func (h *httpserverComponent) Start(ctx context.Context) error {
 	h.Logger().Info("Starting HTTP server", "addr", h.server.Addr)
 	go func() {
-		if err := h.server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := h.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			h.Logger().Error("HTTP server error", "error", err)
 		}
 	}()

@@ -200,7 +200,7 @@ func (h *httpserverComponent) Init(ctx context.Context) error {
 func (h *httpserverComponent) Start(ctx context.Context) error {
 	fmt.Println("Starting HTTP server", "addr", h.server.Addr)
 	go func() {
-		if err := h.server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := h.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			h.Logger().Error("HTTP server error", "error", err)
 		}
 	}()
