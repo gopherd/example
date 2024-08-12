@@ -349,7 +349,7 @@ This approach allows you to add comments to your JSON configuration files for be
 
 Examples of valid comments:
 
-```json
+```jsonc
 {
     // Valid comment
     // Still a valid comment
