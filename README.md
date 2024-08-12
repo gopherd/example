@@ -9,10 +9,11 @@ This guide will demonstrate the features and usage of Gopherd/core through a ste
 ### 1.1 Key Features
 
 - Generic-based component system
-- Flexible configuration management
 - Lifecycle management
 - Dependency injection
 - Event system
+- Support for loading configurations from standard input, files, and remote HTTP services
+- Support for JSON, TOML, YAML, and other arbitrary configuration formats through encoders and decoders
 
 ## 2. Quick Start
 
