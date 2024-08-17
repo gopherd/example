@@ -437,14 +437,14 @@ func init() {
 	})
 }
 
-// 我们没有定义一个单独的 eventsystemapi 的包，直接使用了 event.Dispatcher 作为组件的导出接口
-var _ event.Dispatcher[reflect.Type] = (*eventsystemComponent)(nil)
+// 我们没有定义一个单独的 eventsystemapi 的包，直接使用了 event.EventSystem  作为组件的导出接口
+var _ event.EventSystem[reflect.Type] = (*eventsystemComponent)(nil)
 
 type eventsystemComponent struct {
 	component.BaseComponent[struct {
 		Ordered *bool
 	}]
-	event.Dispatcher[reflect.Type]
+	event.EventSystem[reflect.Type]
 }
 
 func (com *eventsystemComponent) Init(ctx context.Context) error {
@@ -452,7 +452,7 @@ func (com *eventsystemComponent) Init(ctx context.Context) error {
 	if com.Options().Ordered != nil {
 		ordered = *com.Options().Ordered
 	}
-	com.Dispatcher = event.NewDispatcher[reflect.Type](ordered)
+	com.EventSystem = event.NewEventSystem[reflect.Type](ordered)
 	return nil
 }
 ```
@@ -491,7 +491,7 @@ type authComponent struct {
 		Secret string
 	}, struct {
 		HTTPServer  component.Reference[httpserverapi.Component]
-		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+		EventSystem component.Reference[event.EventSystem[reflect.Type]]
 	}]
 }
 
@@ -584,7 +584,7 @@ type usersComponent struct {
 		MaxUsers int
 	}, struct {
 		HTTPServer  component.Reference[httpserverapi.Component]
-		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+		EventSystem component.Reference[event.EventSystem[reflect.Type]]
 	}]
 	loggedInUsers map[string]bool
 }
@@ -641,7 +641,7 @@ type authComponent struct {
 		Secret string
 	}, struct{
 		HTTPServer  component.Reference[httpserverapi.Component]
-		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+		EventSystem component.Reference[event.EventSystem[reflect.Type]]
 	}]
 }
 ```

@@ -4,6 +4,8 @@ github.com/gopherd/core v0.0.0-20240812074656-1640cb9f913f h1:T6CggDV5B1xtQAcYX9
 github.com/gopherd/core v0.0.0-20240812074656-1640cb9f913f/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
 github.com/gopherd/core v0.0.0-20240812095151-15613a2d75fd h1:h/j6yveUloCMI/tZdl/ZIksox/pJQwmmw4fdFu6oR6o=
 github.com/gopherd/core v0.0.0-20240812095151-15613a2d75fd/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
+github.com/gopherd/core v0.0.0-20240817135422-69c2ff6478af h1:JMYoktVFhoUzviWDuCILK2izovx1a2XJ0k8fT6zmZX0=
+github.com/gopherd/core v0.0.0-20240817135422-69c2ff6478af/go.mod h1:KfAPtxaKLEFiby8PpGwdgp86auCmLU82+khBzHhUTaM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

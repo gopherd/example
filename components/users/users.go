@@ -25,7 +25,7 @@ type usersComponent struct {
 		MaxUsers int
 	}, struct {
 		HTTPServer  component.Reference[httpserverapi.Component]
-		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+		EventSystem component.Reference[event.EventSystem[reflect.Type]]
 	}]
 	loggedInUsers map[string]bool
 }

@@ -26,7 +26,7 @@ type authComponent struct {
 		Secret string
 	}, struct {
 		HTTPServer  component.Reference[httpserverapi.Component]
-		EventSystem component.Reference[event.Dispatcher[reflect.Type]]
+		EventSystem component.Reference[event.EventSystem[reflect.Type]]
 	}]
 }
 
