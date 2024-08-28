@@ -1052,7 +1052,6 @@ To avoid circular dependencies, the following strategies can be adopted:
 
 Gopherd/core provides several useful command line arguments:
 
-- `-v`: Print version information and exit
 - `-p`: Print parsed configuration and exit
 - `-t`: Test configuration validity and exit
 - `-T`: Enable configuration template processing

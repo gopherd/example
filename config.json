@@ -1,14 +1,16 @@
 {
-    "Context": {
-        "Namespace": "example",
-        "Name": "example-server",
-        "ID": 1001,
-        "R": {
-            "HTTPServer": "httpserver",
-            "EventSystem": "eventsystem"
-        }
-    },
-    "Components": [
+	// Global context, which can be used in templates
+	"Context": {
+		"Namespace": "example",
+		"Name": "example-server",
+		"ID": 1001,
+		"R": {
+			"HTTPServer": "httpserver",
+			"EventSystem": "eventsystem"
+		}
+	},
+	// List of components, each containing a required `Name` and optional `UUID`, `Refs`, `Options`
+	"Components": [
 		{
 			"Name": "github.com/gopherd/example/components/logger",
 			"Options": {
@@ -16,42 +18,42 @@
 				"Output": "stdout"
 			}
 		},
-        {
-            "Name": "github.com/gopherd/example/components/eventsystem",
-            "UUID": "{{.R.EventSystem}}",
-            "Options": {
-                "Ordered": true
-            }
-        },
-        {
-            "Name": "github.com/gopherd/example/components/auth",
-            "Refs": {
-                "HTTPServer": "{{.R.HTTPServer}}",
-                "EventSystem": "{{.R.EventSystem}}"
-            },
-            "Options": {
-                "Secret": "{{.Namespace}}-secret"
-            }
-        },
-        {
-            "Name": "github.com/gopherd/example/components/users",
-            "Refs": {
-                "HTTPServer": "{{.R.HTTPServer}}",
-                "EventSystem": "{{.R.EventSystem}}"
-            },
-            "Options": {
-                "MaxUsers": 1000
-            }
-        },
-        {
-            "Name": "github.com/gopherd/example/components/httpserver",
-            "UUID": "{{.R.HTTPServer}}",
-            "Options": {
-                "Addr": ":{{add 8000 .ID}}"
-            }
-        },
-        {
-            "Name": "github.com/gopherd/example/components/blockexit"
-        }
-    ]
+		{
+			"Name": "github.com/gopherd/example/components/eventsystem",
+			"UUID": "{{.R.EventSystem}}",
+			"Options": {
+				"Ordered": true
+			}
+		},
+		{
+			"Name": "github.com/gopherd/example/components/auth",
+			"Refs": {
+				"HTTPServer": "{{.R.HTTPServer}}",
+				"EventSystem": "{{.R.EventSystem}}"
+			},
+			"Options": {
+				"Secret": "{{.Namespace}}-secret"
+			}
+		},
+		{
+			"Name": "github.com/gopherd/example/components/users",
+			"Refs": {
+				"HTTPServer": "{{.R.HTTPServer}}",
+				"EventSystem": "{{.R.EventSystem}}"
+			},
+			"Options": {
+				"MaxUsers": 1000
+			}
+		},
+		{
+			"Name": "github.com/gopherd/example/components/httpserver",
+			"UUID": "{{.R.HTTPServer}}",
+			"Options": {
+				"Addr": ":{{add 8000 .ID}}"
+			}
+		},
+		{
+			"Name": "github.com/gopherd/example/components/blockexit"
+		}
+	]
 }
